@@ -7,33 +7,6 @@ const db = require('../database/db')
 router.use(express.json());
 router.use(express.urlencoded({ extended: true }));
 
-// JSON File Path
-// const filePath = path.join(__dirname, '../data/tasks.json');
-
-
-// Read tasks from file
-function getTasks() {
-    try {
-        const data = fs.readFileSync(filePath, 'utf8');
-
-        if (!data.trim()) {
-            return [];
-        }
-
-        return JSON.parse(data);
-    } catch (error) {
-        return [];
-    }
-}
-
-// Save tasks to file
-function saveTasks(tasks) {
-    fs.writeFileSync(
-        filePath,
-        JSON.stringify(tasks, null, 2)
-    );
-}
-
 
 // Validation Middleware
 function validateTask(req, res, next) {
@@ -82,8 +55,6 @@ router.get('/', (req, res) => {
             title:'Task Manager',
             tasks:tasks
         })
-
-
 
 });
 

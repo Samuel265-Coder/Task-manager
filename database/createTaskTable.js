@@ -3,12 +3,20 @@ const Database = require('better-sqlite3');
 const db = new Database('tasks.db');
 
 db.exec(`
-CREATE TABLE IF NOT EXISTS tasks (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL
-)
+DROP TABLE IF EXISTS tasks;
 `);
 
-// console.log('Tasks table created');
+db.exec(`
+CREATE TABLE tasks (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    user_id INTEGER NOT NULL,
+
+    FOREIGN KEY(user_id)
+        REFERENCES users(id)
+);
+`);
+
+console.log('Tasks table recreated');
 
 db.close();
