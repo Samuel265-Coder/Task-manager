@@ -1,0 +1,25 @@
+extends layout
+
+block content
+  h1= title
+
+  .form-card
+
+    if error
+      p.error= error
+
+    form(action='/tasks/' + task.id method='POST')
+
+      div
+        label(for='name') Task Name
+
+      div
+        input(
+          type='text'
+          name='name'
+          id='name'
+          value=task.name
+        )
+
+      button.edit-btn(type='submit')
+        | Update Task

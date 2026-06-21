@@ -1,0 +1,18 @@
+extends layout
+
+block content
+  h1= title
+
+  .top-actions
+    a.primary-btn(href='/tasks/new') Create Task
+
+  .tasks-grid
+    each task in tasks
+      .task-card
+        p.task-name= task.name
+
+        .actions
+          a.edit-btn(href='/tasks/' + task.id + '/edit') Edit
+
+          form(action='/tasks/' + task.id + '/delete' method='POST')
+            button.delete-btn(type='submit') Delete
