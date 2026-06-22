@@ -72,4 +72,37 @@ router.post('/register', async (req, res) => {
 
 });
 
+
+router.get('/login', (req, res) => {
+  res.render('login');
+});
+
+
+router.post('/login', (req, res) => {
+  const { username, password } = req.body;
+
+  // 1. Find user
+  const user = db.prepare(`
+    SELECT * FROM users WHERE username = ?
+  `).get(username);
+
+  // 2. Check if user exists
+  if (!user) {
+    return res.send('User not found');
+  }
+
+  // 3. Check password
+  const isValid = bcrypt.compareSync(password, user.password);
+
+  if (!isValid) {
+    return res.send('Invalid password');
+  }
+
+  // 4. Create session
+  req.session.userId = user.id;
+
+  // 5. Redirect to dashboard/tasks
+  res.redirect('/tasks');
+});
+
 module.exports = router;
