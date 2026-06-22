@@ -1,166 +1,84 @@
 const express = require('express');
 const router = express.Router();
-const fs = require('fs');
-const path = require('path');
-const db = require('../database/db')
+const db = require('../database/db');
 
-router.use(express.json());
-router.use(express.urlencoded({ extended: true }));
+const isAuthenticated = require('../middleware/auth');
+const validateTask = require('../middleware/validateTask');
 
+// 🔐 PROTECT ALL TASK ROUTES
+router.use(isAuthenticated);
 
-// Validation Middleware
-function validateTask(req, res, next) {
-
-    const { name } = req.body;
-
-    if (!name || name.trim() === '') {
-        return res.render('new-task', {
-            title: 'Create Task',
-            error: 'Task name is required',
-            taskName: ''
-        });
-    }
-
-    if (name.trim().length < 3) {
-        return res.render('new-task', {
-            title: 'Create Task',
-            error: 'Task name must be at least 3 characters',
-            taskName: name
-        });
-    }
-
-    if (name.trim().length > 100) {
-        return res.render('new-task', {
-            title: 'Create Task',
-            error: 'Task name cannot exceed 100 characters',
-            taskName: name
-        });
-    }
-
-    next();
-}
-
-
-/* ===========================
-   LOAD ALL TASKS
-=========================== */
-
+// LIST TASKS (ONLY USER TASKS)
 router.get('/', (req, res) => {
+  const tasks = db.prepare(`
+    SELECT * FROM tasks
+    WHERE user_id = ?
+  `).all(req.session.userId);
 
-        const tasks = db
-            .prepare('SELECT * FROM tasks')
-            .all();
-        
-        res.render('tasks',{
-            title:'Task Manager',
-            tasks:tasks
-        })
-
+  res.render('tasks', {
+    title: 'My Tasks',
+    tasks
+  });
 });
 
-/* ===========================
-   SHOW CREATE FORM
-=========================== */
-
-router.get('/new', (req, res) => {
-
-    res.render('new-task', {
-        title: 'Create New Task'
-    });
-
-});
-
-/* ===========================
-   CREATE TASK
-=========================== */
-
+// CREATE TASK
 router.post('/', validateTask, (req, res) => {
+  db.prepare(`
+    INSERT INTO tasks (name, user_id)
+    VALUES (?, ?)
+  `).run(req.body.name, req.session.userId);
 
-    db.prepare('insert into tasks(name) values(?)').run(req.body.name);
-    res.redirect('/tasks');
-
+  res.redirect('/tasks');
 });
 
-/* ===========================
-   SHOW EDIT FORM
-=========================== */
-
-router.get('/:id/edit', (req, res) => {
-
-    const task = db.prepare('select * from tasks where id=?').get(req.params.id)
-
-
-    if (!task) {
-        return res.status(404).render('error', {
-            message: 'Task not found'
-        });
-    }
-
-    res.render('edit-task', {
-        title: 'Edit Task',
-        task
-    });
-
+// NEW TASK FORM
+router.get('/new', (req, res) => {
+  res.render('new-task', { title: 'New Task' });
 });
 
-/* ===========================
-   UPDATE TASK
-=========================== */
-
-router.post('/:id', validateTask,  (req, res) => {
-
-    const task = db.prepare('select * from tasks where id=?').get(req.params.id)
-
-
-    if (!task) {
-        return res.status(404).render('error', {
-            message: 'Task not found'
-        });
-    }
-
-    db.prepare(
-            'UPDATE tasks SET name = ? WHERE id = ?'
-        ).run(
-            req.body.name.trim(),
-            req.params.id
-        );
-
-    res.redirect('/tasks');
-
-});
-
-/* ===========================
-   VIEW SINGLE TASK
-=========================== */
-
+// VIEW TASK
 router.get('/:id', (req, res) => {
+  const task = db.prepare(`
+    SELECT * FROM tasks
+    WHERE id = ? AND user_id = ?
+  `).get(req.params.id, req.session.userId);
 
-  const task = db.prepare('select * from tasks where id=?').get(req.params.id)
+  if (!task) return res.send('Not found');
 
-
-    if (!task) {
-        return res.status(404).render('error', {
-            message: 'Task not found'
-        });
-    }
-
-    res.render('task', {
-        title: 'Task Details',
-        task
-    });
-
+  res.render('task', { task });
 });
 
-/* ===========================
-   DELETE TASK
-=========================== */
+// EDIT FORM
+router.get('/:id/edit', (req, res) => {
+  const task = db.prepare(`
+    SELECT * FROM tasks
+    WHERE id = ? AND user_id = ?
+  `).get(req.params.id, req.session.userId);
 
+  if (!task) return res.send('Not found');
+
+  res.render('edit-task', { task });
+});
+
+// UPDATE TASK
+router.post('/:id', validateTask, (req, res) => {
+  db.prepare(`
+    UPDATE tasks
+    SET name = ?
+    WHERE id = ? AND user_id = ?
+  `).run(req.body.name, req.params.id, req.session.userId);
+
+  res.redirect('/tasks');
+});
+
+// DELETE TASK
 router.post('/:id/delete', (req, res) => {
+  db.prepare(`
+    DELETE FROM tasks
+    WHERE id = ? AND user_id = ?
+  `).run(req.params.id, req.session.userId);
 
-    db.prepare('delete from tasks where id=?').run(req.params.id)
-
-    res.redirect('/tasks');
-
+  res.redirect('/tasks');
 });
 
 module.exports = router;
