@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const bcrypt = require('bcrypt');
 const db = require('../database/db');
 
 
@@ -13,13 +14,16 @@ router.get('/register', (req, res) => {
 });
 
 
-router.post('/register', (req, res) => {
+router.post('/register', async (req, res) => {
 
     const {
         username,
         email,
         password
     } = req.body;
+
+   const hashedPassword = await bcrypt.hash(password, 10);
+
 
     if (!username || !email || !password) {
 
@@ -29,6 +33,8 @@ router.post('/register', (req, res) => {
         });
 
     }
+
+
 
     const existingUser = db.prepare(
         `
@@ -59,7 +65,7 @@ router.post('/register', (req, res) => {
     ).run(
         username.trim(),
         email.trim(),
-        password
+        hashedPassword
     );
 
     res.redirect('/login');
