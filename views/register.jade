@@ -1,44 +1,63 @@
 extends layout
 
 block content
-  h1 Register
-  
-  if error
-   p.error=error
+  .auth-container
 
-  form(action="/register" method="POST")
+    .auth-brand
+      h1 Task Manager
+      p.tagline
+        | Organize your work, track your progress,
+        | and stay productive every day.
 
-    div
-      label Username
+      .feature-list
+        p ✓ Create and manage tasks
+        p ✓ Track daily goals
+        p ✓ Stay organized anywhere
 
-    div
-      input(
-        type="text"
-        name="username"
-      )
+    .auth-card
+      h2 Create Account
 
-    br
+      p.subtitle
+        | Sign up to start managing your tasks.
 
-    div
-      label Email
+      if error
+        p.error= error
 
-    div
-      input(
-        type="email"
-        name="email"
-      )
+      form(action="/register" method="POST")
 
-    br
+        .form-group
+          label(for="username") Username
+          input(
+            type="text"
+            id="username"
+            name="username"
+            placeholder="Enter your username"
+            required
+          )
 
-    div
-      label Password
+        .form-group
+          label(for="email") Email Address
+          input(
+            type="email"
+            id="email"
+            name="email"
+            placeholder="Enter your email"
+            required
+          )
 
-    div
-      input(
-        type="password"
-        name="password"
-      )
+        .form-group
+          label(for="password") Password
+          input(
+            type="password"
+            id="password"
+            name="password"
+            placeholder="Create a password"
+            required
+          )
 
-    br
+        button.auth-btn(type="submit")
+          | Create Account
 
-    button(type="submit") Register
+      p.login-link
+        | Already have an account?
+        a(href="/login") Login
