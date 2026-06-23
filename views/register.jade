@@ -2,26 +2,12 @@ extends layout
 
 block content
   .auth-container
-
-    .auth-brand
-      h1 Task Manager
-      p.tagline
-        | Organize your work, track your progress,
-        | and stay productive every day.
-
-      .feature-list
-        p ✓ Create and manage tasks
-        p ✓ Track daily goals
-        p ✓ Stay organized anywhere
-
     .auth-card
       h2 Create Account
-
-      p.subtitle
-        | Sign up to start managing your tasks.
+      p.subtitle Start organizing your tasks today
 
       if error
-        p.error= error
+        .error= error
 
       form(action="/register" method="POST")
 
@@ -36,7 +22,7 @@ block content
           )
 
         .form-group
-          label(for="email") Email Address
+          label(for="email") Email
           input(
             type="email"
             id="email"
@@ -51,13 +37,12 @@ block content
             type="password"
             id="password"
             name="password"
-            placeholder="Create a password"
+            placeholder="Create your password"
             required
           )
 
-        button.auth-btn(type="submit")
-          | Create Account
+        button.auth-btn(type="submit") Create Account
 
-      p.login-link
+      p.auth-link
         | Already have an account?
         a(href="/login") Login
