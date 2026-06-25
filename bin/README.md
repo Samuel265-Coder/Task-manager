@@ -1,4 +1,6 @@
-# Task Manager Application
+# Task Manager Application# Task Manager Application
+
+![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
 
 A simple and secure Task Manager web application built with Node.js, Express, Jade (Pug), SQLite, and Express Sessions.
 
