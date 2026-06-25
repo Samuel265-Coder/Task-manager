@@ -82,6 +82,7 @@ h1 {
 
 .btn,
 .primary-btn,
+.logout-btn,
 .edit-btn,
 .delete-btn {
   border: none;
@@ -109,6 +110,19 @@ h1 {
 .primary-btn:hover {
   background: #1d4ed8;
 }
+
+.logout-btn {
+  background: #a54242;
+  color: white;
+}
+
+
+.logout-btn:hover {
+  background:  #eb2525;
+  color: white;
+}
+
+
 
 /* EDIT BUTTON */
 
@@ -144,6 +158,7 @@ button:hover {
 .top-actions {
   display: flex;
   justify-content: center;
+  gap: 5px;
   margin-bottom: 20px;
 }
 
